@@ -25,7 +25,10 @@ app.get("/users", async (req: express.Request, res: express.Response) => {
   try {
     const usersCollectionReference = db.collection("users");
     const usersSnapshot = await usersCollectionReference.get();
-    const users = usersSnapshot.docs.map(doc => doc.data());
+    const users = usersSnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    }));
     res.status(200).send({ users });
   } catch (error) {
     res.send(error);
@@ -56,7 +59,10 @@ app.get("/users/:id", async (req: express.Request, res: express.Response) => {
     const { id } = req.params;
     const userDocumentReference = db.collection("users").doc(id);
     const userDocumentSnapshot = await userDocumentReference.get();
-    const userDocument = userDocumentSnapshot.data();
+    const userDocument = {
+      id: userDocumentSnapshot.id,
+      ...userDocumentSnapshot.data()
+    };
     res.send({ user: userDocument });
   } catch (error) {
     res.send(error);
@@ -90,7 +96,6 @@ app.delete(
     }
   }
 );
-
 
 // to handle routes not defined in our app
 app
